@@ -58,4 +58,6 @@ public:
 	bool IsWeaponEquipped();
 	bool IsAiming();
 
+
+
 };
