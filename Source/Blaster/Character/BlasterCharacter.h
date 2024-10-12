@@ -80,4 +80,5 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace;}
 
 
+
 };
