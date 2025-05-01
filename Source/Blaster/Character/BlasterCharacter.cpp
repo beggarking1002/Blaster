@@ -180,9 +180,9 @@ void ABlasterCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}
-	if (Combat && Combat->EquippedWeapon)
+	if (AttachedGrenade)
 	{
-		Combat->EquippedWeapon->Destroy();
+		AttachedGrenade->SetVisibility(false);
 	}
 }
 
