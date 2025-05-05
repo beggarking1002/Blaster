@@ -108,6 +108,7 @@ void UCombatComponent::Fire()
 	{
 		bCanFire = false;
 		ServerFire(HitTarget);
+		LocalFire(HitTarget);
 		if (EquippedWeapon)
 		{
 			CrosshairShootingFactor = .75f;
@@ -145,6 +146,13 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
+	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
+	LocalFire(TraceHitTarget);
+}
+
+
+void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
+{
 	if (EquippedWeapon == nullptr) return;
 	if (Character && CombatState == ECombatState::ECS_Reloading && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun)
 	{
@@ -159,6 +167,7 @@ void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& T
 		EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
+
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
@@ -180,6 +189,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::SwapWeapons()
 {
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	AWeapon* TempWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TempWeapon;
