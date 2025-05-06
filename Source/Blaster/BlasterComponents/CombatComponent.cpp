@@ -57,7 +57,8 @@ void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
 	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
 	{
 		Reload();
-	}}
+	}
+}
 
 void UCombatComponent::BeginPlay()
 {
@@ -156,10 +157,8 @@ void UCombatComponent::FireShotgun()
 	{
 		TArray<FVector_NetQuantize> HitTargets;
 		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
-
 		if (!Character->HasAuthority()) ShotgunLocalFire(HitTargets);
 		ServerShotgunFire(HitTargets);
- 
 	}
 }
 
@@ -229,7 +228,6 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& Trace
 	}
 }
 
-
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
 	if (Character == nullptr || WeaponToEquip == nullptr) return;
@@ -243,7 +241,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	{
 		EquipPrimaryWeapon(WeaponToEquip);
 	}
- 
+
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
 }
@@ -254,13 +252,13 @@ void UCombatComponent::SwapWeapons()
 	AWeapon* TempWeapon = EquippedWeapon;
 	EquippedWeapon = SecondaryWeapon;
 	SecondaryWeapon = TempWeapon;
- 
+
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	AttachActorToRightHand(EquippedWeapon);
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
 	PlayEquipWeaponSound(EquippedWeapon);
- 
+
 	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 	AttachActorToBackpack(SecondaryWeapon);
 }
@@ -288,7 +286,6 @@ void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
 	PlayEquipWeaponSound(WeaponToEquip);
 	SecondaryWeapon->SetOwner(Character);
 }
-
 
 void UCombatComponent::DropEquippedWeapon()
 {
@@ -331,7 +328,6 @@ void UCombatComponent::AttachActorToBackpack(AActor* ActorToAttach)
 		BackpackSocket->AttachActor(ActorToAttach, Character->GetMesh());
 	}
 }
-
 
 void UCombatComponent::UpdateCarriedAmmo()
 {
@@ -412,7 +408,7 @@ void UCombatComponent::UpdateAmmoValues()
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 void UCombatComponent::UpdateShotgunAmmoValues()
@@ -429,7 +425,7 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	EquippedWeapon->AddAmmo(-1);
+	EquippedWeapon->AddAmmo(1);
 	bCanFire = true;
 	if (EquippedWeapon->IsFull() || CarriedAmmo == 0)
 	{
@@ -441,7 +437,6 @@ void UCombatComponent::OnRep_Grenades()
 {
 	UpdateHUDGrenades();
 }
-
 
 void UCombatComponent::JumpToShotgunEnd()
 {
@@ -489,7 +484,6 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 		}
 	}
 }
-
 
 void UCombatComponent::OnRep_CombatState()
 {
@@ -583,7 +577,6 @@ bool UCombatComponent::ShouldSwapWeapons()
 {
 	return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr);
 }
-
 
 void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
 {
