@@ -14,7 +14,7 @@ ULagCompensationComponent::ULagCompensationComponent()
 	PrimaryComponentTick.bCanEverTick = true;
  
 }
- 
+
 void ULagCompensationComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -370,6 +370,34 @@ void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharac
 			DamageCauser->GetDamage(),
 			Character->Controller,
 			DamageCauser,
+			UDamageType::StaticClass()
+		);
+	}
+}
+
+void ULagCompensationComponent::ShotgunServerScoreRequest_Implementation(const TArray<ABlasterCharacter*>& HitCharacters, const FVector_NetQuantize& TraceStart, const TArray<FVector_NetQuantize>& HitLocations, float HitTime)
+{
+	FShotgunServerSideRewindResult Confirm = ShotgunServerSideRewind(HitCharacters, TraceStart, HitLocations, HitTime);
+
+	for (auto& HitCharacter : HitCharacters)
+	{
+		if (HitCharacter == nullptr || Character->GetEquippedWeapon() == nullptr || Character == nullptr) continue;
+		float TotalDamage = 0.f;
+		if (Confirm.HeadShots.Contains(HitCharacter))
+		{
+			float HeadShotDamage = Confirm.HeadShots[HitCharacter] * Character->GetEquippedWeapon()->GetDamage();
+			TotalDamage += HeadShotDamage;
+		}
+		if (Confirm.BodyShots.Contains(HitCharacter))
+		{
+			float BodyShotDamage = Confirm.BodyShots[HitCharacter] * Character->GetEquippedWeapon()->GetDamage();
+			TotalDamage += BodyShotDamage;
+		}
+		UGameplayStatics::ApplyDamage(
+			HitCharacter,
+			TotalDamage,
+			Character->Controller,
+			Character->GetEquippedWeapon(),
 			UDamageType::StaticClass()
 		);
 	}
