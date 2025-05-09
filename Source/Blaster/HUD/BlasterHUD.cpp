@@ -2,10 +2,51 @@
 
 
 #include "BlasterHUD.h"
-
 #include "Announcement.h"
 #include "GameFramework/PlayerController.h"
 #include "CharacterOverlay.h"
+#include "ElimAnnouncement.h"
+
+
+void ABlasterHUD::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+void ABlasterHUD::AddElimAnnouncement(FString Attacker, FString Victim)
+{
+	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && ElimAnnouncementClass)
+	{
+		UElimAnnouncement* ElimAnouncementWidget = CreateWidget<UElimAnnouncement>(OwningPlayer, ElimAnnouncementClass);
+		if (ElimAnouncementWidget)
+		{
+			ElimAnouncementWidget->SetElimAnnouncementText(Attacker, Victim);
+			ElimAnouncementWidget->AddToViewport();
+		}
+	}
+}
+
+void ABlasterHUD::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if(PlayerController && CharacterOverlayClass)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
+	}
+}
+
+void ABlasterHUD::AddAnnouncement()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && AnnouncementClass)
+	{
+		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+		Announcement->AddToViewport();
+	}
+}
 
 void ABlasterHUD::DrawHUD()
 {
@@ -44,34 +85,6 @@ void ABlasterHUD::DrawHUD()
 			FVector2D Spread(0.f, SpreadScaled);
 			DrawCrosshair(HUDPackage.CrosshairsBottom, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
-	}
-}
-
-
-
-void ABlasterHUD::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-void ABlasterHUD::AddCharacterOverlay()
-{
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if(PlayerController && CharacterOverlayClass)
-	{
-		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
-		CharacterOverlay->AddToViewport();
-	}
-}
-
-void ABlasterHUD::AddAnnouncement()
-{
-	APlayerController* PlayerController = GetOwningPlayerController();
-	if (PlayerController && AnnouncementClass)
-	{
-		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
-		Announcement->AddToViewport();
 	}
 }
 
